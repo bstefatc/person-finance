@@ -1,0 +1,610 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<script type="text/javascript">
+	var accountForOneId;
+	showAccounts();
+
+	function showAccounts() {
+		$.ajax({
+			type : "GET",
+			dataType : "json",
+			url : "rest/account",
+			success : function(data) {
+				$("#rightPanel").hide();
+				console.log(data);
+				var res = JSON.stringify(data); //json to string
+				var c = "";
+				for (var i = 0; i < data.length; i++) {
+					c += '<div class="panel panel-info">	<div class="panel-heading"  id = "' +data[i].id+'">' + data[i].name + ' </div>	</div>';
+				}
+				$('#result').html(c);
+				showDetail();
+				transactionClick();
+				noteClick();
+
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				alert("Request failed: " + textStatus);
+				console.log(JSON.stringify(jqXHR));
+			},
+		});
+	};
+
+	function showDetail() {
+		$('#result').on('click', function(e) {
+			$.ajax({
+				type : "GET",
+				dataType : "json",
+				url : "rest/account/byId",
+				data : "accountId=" + e.target.id,
+				success : function(data) {
+					$("#rightPanel").show();
+					console.log(data);
+					var res = JSON.stringify(data); //json to string
+					accountForOneId = data.id;
+					$("#example").text(data.name);
+					$("#editid").val(data.id);
+					$("#editname").val(data.name);
+					$("#editnumber").val(data.number);
+					$("#editcurrency").val(data.currency);
+					$("#editinstitution").val(data.institution);
+					$("#editaddress").val(data.address);
+					$("#editphone").val(data.phone);
+
+					$(".idtransactions").removeClass("active");
+					$(".idtransactions").removeClass("in");
+					$(".idtransactions").removeClass("active");
+					$(".idsummary").removeClass("active");
+					$(".idsummary").removeClass("in");
+					$(".idsummary").removeClass("active");
+					$(".idnotes").removeClass("active");
+					$(".idnotes").removeClass("in");
+					$(".idnotes").removeClass("active");
+					$("#transactions").removeClass("active");
+					$("#transactions").removeClass("in");
+					$("#notes").removeClass("active");
+					$("#notes").removeClass("in");
+					$("#summary").removeClass("active");
+					$("#summary").removeClass("in");
+
+					$(".iddetails").addClass("active");
+					$("#details").addClass("in active");
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert("Request failed: " + textStatus);
+					console.log(JSON.stringify(jqXHR));
+				},
+			});
+		});
+	};
+
+	$(document).ready(
+			function() {
+
+				$("#editForm").submit(
+						function() {
+							var name = $("#editname").val();
+							if (name == null || name == "") {
+								alert("insert name please");
+								return false;
+							}
+							var url = "rest/account/update"; // the script where you handle the form input.
+							var id = $("#editid").val();
+
+							var number = $("#editnumber").val();
+							var currency = $("#editcurrency").val();
+							var institution = $("#editinstitution").val();
+							var address = $("#editaddress").val();
+							var phone = $("#editphone").val();
+							data = "id=" + id + "&name=" + name + "&number=" + number + "&currency=" + currency + "&institution=" + institution
+									+ "&address=" + address + "&phone=" + phone;
+							$.ajax({
+								type : "GET",
+								url : url,
+								data : data,
+								success : function(data) {
+									showAccounts();
+								},
+								error : function(jqXHR, textStatus, errorThrown) {
+									alert("Request failed: " + textStatus);
+									console.log(JSON.stringify(jqXHR));
+								},
+							});
+
+							return false; // avoid to execute the actual submit of the form.
+						});
+			});
+
+	$(document).ready(
+			function() {
+				$("#createForm").submit(
+						function() {
+							var name = $("#name").val();
+							if (name == null || name == "") {
+								alert("insert name please");
+								return false;
+							}
+							var url = "rest/account/create"; // the script where you handle the form input.
+							var number = $("#number").val();
+							var currency = $("#currency").val();
+							var institution = $("#institution").val();
+							var address = $("#address").val();
+							var phone = $("#phone").val();
+							data = "name=" + name + "&number=" + number + "&currency=" + currency + "&institution=" + institution + "&address="
+									+ address + "&phone=" + phone;
+							$.ajax({
+								type : "GET",
+								url : url,
+								data : data,
+								success : function(data) {
+									// 							alert(data); // show response from the php script.
+									showAccounts();
+								},
+								error : function(jqXHR, textStatus, errorThrown) {
+									alert("Request failed: " + textStatus);
+									console.log(JSON.stringify(jqXHR));
+								},
+							});
+
+							return false; // avoid to execute the actual submit of the form.
+						});
+			});
+
+	function noteClick() {
+		$(".idnotes").click(function() {
+			viewNotes();
+		})
+	};
+
+	function viewNotes() {
+		$.ajax({
+			type : "GET",
+			dataType : "json",
+			url : "rest/account/comment",
+			data : "id=" + accountForOneId,
+			success : function(data) {
+				var c = "";
+				for (var i = 0; i < data.length; i++) {
+					c += '<blockquote>' + '<p id="commentUserName">' + data[i].userName + '</p>' + '<p id="commenttext">' + data[i].commentText
+							+ '</p>' + '<small>comment.userName <cite title="Source Title"></cite>' + '</small>';
+					if (data[i].docName != null) {
+						c += '<p>' + '	<a target="_blank" href="<spring:url value="rest/account/downloadfile?fileName=' + data[i].docName + '" />">'
+								+ data[i].docName + '</a>' + '</p>'
+					}
+					c += '</blockquote>'
+				}
+				$('#viewComments').html(c);
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				alert("Request failed: " + textStatus);
+				console.log(JSON.stringify(jqXHR));
+			},
+		});
+	}
+
+	function openFile(id) {
+		$.ajax({
+			type : "GET",
+			dataType : "json",
+			url : "rest/account/downloadfile",
+			// 			data:"id="+id,
+			success : function(data) {
+
+			},
+			error : function(jqXHR, textStatus, errorThrown) {
+				alert("Requesta failed: " + textStatus);
+				console.log(JSON.stringify(jqXHR));
+			},
+		});
+	}
+
+	$(document).ready(function() {
+		$("#noteForm").submit(function() {
+			var oMyForm = new FormData();
+			oMyForm.append("file", file2.files[0]);
+			oMyForm.append("name", $("#commentName").val());
+			oMyForm.append("commentText", $("#commentText").val());
+			oMyForm.append("id", accountForOneId);
+
+			var url = "rest/account/createcomment"; // the script where you handle the form input.
+			data = oMyForm;
+			$.ajax({
+				dataType : 'text',
+				processData : false,
+				contentType : false,
+				type : "POST",
+				url : url,
+				data : data,
+				success : function(data) {
+					viewNotes();
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert("Request failed: " + textStatus);
+					console.log(JSON.stringify(jqXHR));
+				},
+			});
+
+			return false; // avoid to execute the actual submit of the form.
+		});
+	});
+
+	function transactionClick() {
+		$(".idtransactions").click(function() {
+			viewTransactions();
+		})
+	};
+
+	function viewTransactions() {
+		$
+				.ajax({
+					type : "GET",
+					dataType : "json",
+					url : "rest/account/transactions",
+					data : "id=" + accountForOneId,
+					success : function(data) {
+						var c = "";
+						c += '<table class="table table-striped table-bordered table-hover" id="dataTables-example">'
+								+ '<thead>'
+								+ '<tr>'
+								+ '<th style="width: 180px">Date<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '<th style="width: 180px">Details<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '<th style="width: 180px">Amount<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '<th style="width: 180px">Balance<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '<th style="width: 180px">Comment<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '<th style="width: 180px">Tag<img src="resources/img/sorting.png" width="25px" height="25px" style="margin-left: 12px;" /></th>'
+								+ '</tr>' + '</thead>' + '<tbody class="the-node" id="the-node">'
+						for (var i = 0; i < data.length; i++) {
+							var d = new Date(data[i].date);
+							c += '<tr id="'+data[i].id+'">' + '	<td>' + d + '</td>' + '	<td>' + data[i].details + '</td>' + '	<td>' + data[i].amount
+									+ '</td>' + '	<td>' + data[i].balance + '</td>' + '	<td>' + data[i].comment + '</td>' + '	<td>' + data[i].tag
+									+ '</td>' + '</tr>'
+						}
+						c += '</tbody></table>';
+						$('#sortingTable').html(c);
+						$.getScript('resources/js/jquery.dataTables.js');
+						$.getScript('resources/js/dataTables.bootstrap.js');
+						$('#dataTables-example').dataTable();
+					},
+					error : function(jqXHR, textStatus, errorThrown) {
+						alert("Request failed: " + textStatus);
+						console.log(JSON.stringify(jqXHR));
+					},
+				});
+	}
+
+	$(document).ready(
+			function() {
+				$("#transactionForm").submit(
+						function() {
+							var amount = $("#trAmount").val();
+							var balance = $("#trBalance").val();
+							var date = $("#datepicker").val();
+							if (amount !== null) {
+								if (!(/^[\-\+]?[\d\,]*\.?[\d]*$/.test(amount))) {
+									alert("Please enter a valid ammount");
+									return false;
+								}
+							}
+							if (balance !== null) {
+								if (!(/^[\-\+]?[\d\,]*\.?[\d]*$/.test(balance))) {
+									alert("Please enter a valid ammount");
+									return false;
+								}
+							}
+							if (date == null || date == "") {
+								alert("Insert date please");
+								return false;
+							}
+							var url = "rest/account/create_transaction"; // the script where you handle the form input.
+							var detail = $("#trDetails").val();
+							var comment = $("#trComment").val();
+							var tag = $("#trTag").val();
+							data = "id=" + accountForOneId + "&date=" + date + "&detail=" + detail + "&amount=" + amount + "&balance=" + balance
+									+ "&comment=" + comment + "&tag=" + tag;
+							$.ajax({
+								type : "GET",
+								url : url,
+								data : data,
+								success : function(data) {
+									viewTransactions();
+									alert(data);
+								},
+								error : function(jqXHR, textStatus, errorThrown) {
+									alert("Request failed: " + textStatus);
+									console.log(JSON.stringify(jqXHR));
+								},
+							});
+
+							return false; // avoid to execute the actual submit of the form.
+						})
+			});
+
+	$(document).ready(function() {
+		$("#cancelEdit").click(function() {
+
+			$.ajax({
+				type : "GET",
+				dataType : "json",
+				url : "rest/account/byId",
+				data : "accountId=" + accountForOneId,
+				success : function(data) {
+					$("#rightPanel").show();
+					$("#example").text(data.name);
+					$("#editid").val(data.id);
+					$("#editname").val(data.name);
+					$("#editnumber").val(data.number);
+					$("#editcurrency").val(data.currency);
+					$("#editinstitution").val(data.institution);
+					$("#editaddress").val(data.address);
+					$("#editphone").val(data.phone);
+					console.log(data);
+					var res = JSON.stringify(data); //json to string
+					accountForOneId = data.id;
+				
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert("Request failed: " + textStatus);
+					console.log(JSON.stringify(jqXHR));
+				},
+			});
+		
+		});
+	});
+</script>
+
+<div class="panel panel-default mypanel1" style="float: left">
+	<div class="panel-heading">Your Accounts</div>
+	<a href="#myAcc" data-toggle="modal">
+		<div class="panel panel-info">
+			<div class="panel-heading">Add new</div>
+		</div>
+	</a>
+	<div class="panel-body" id="result"></div>
+</div>
+
+<div class="panel panel-default mypanel2" id="rightPanel" style="float: left">
+	<!-- /.panel-heading -->
+	<div class="panel-body">
+		<h3 id="example">
+			<i><b>asd</b></i> <span></span>
+		</h3>
+		<ul class="nav nav-tabs">
+			<li class="idtransactions"><a href="#transactions" data-toggle="tab">Transactions</a></li>
+			<li class="active iddetails"><a href="#details" data-toggle="tab">Details</a></li>
+			<li class="idsummary"><a href="#summary" data-toggle="tab">Summary</a></li>
+			<li class="idnotes"><a href="#notes" data-toggle="tab">Notes</a></li>
+		</ul>
+		<!-- Tab panes -->
+		<div class="tab-content">
+			<div class="tab-pane fade " id="transactions">
+				<div class="panel-body">
+					<div class="table">
+						<table class="table table-striped table-bordered table-hover">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Details</th>
+									<th>Amount</th>
+									<th>Balance</th>
+									<th>Comment</th>
+									<th>Tag</th>
+								</tr>
+							</thead>
+							<tbody>
+								<c:url var="post_urla" value="/createTransaction/${dto.account.id}" />
+								<tr>
+									<form id="transactionForm">
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="datepicker" /></td>
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trDetails" /></td>
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trAmount" /></td>
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trBalance" /></td>
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" autocomplete="off" id="trComment" /></td>
+										<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" name="tag" autocomplete="on"
+											id="trTag" /></td>
+										<td><input class="btn " type="submit" value="Add"></td>
+									</form>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<script src="<c:url value = "/resources/js/my.js"/>"></script>
+				<div class="panel-body">
+					<div class="table" id="sortingTable"></div>
+					<!-- /.table-responsive -->
+				</div>
+			</div>
+			<div class="tab-pane fade in active" id="details">
+				<c:url var="post_url" value="/rest/account/update" />
+				<form id="editForm">
+					<div class="modal-body">
+						<table class="table table-bordered table-hover text-center">
+							<tr>
+								<td>Account id:</td>
+								<td><input class="form-control" id="editid" readonly="true" value="'+data.id+'" /></td>
+							</tr>
+							<tr>
+								<td>Account name :</td>
+								<td><input class="form-control" id="editname" value="'+data.name+'" /></td>
+							</tr>
+							<tr>
+								<td>Account number:</td>
+								<td><input class="form-control" id="editnumber" value="'+data.number+'" /></td>
+							</tr>
+							<tr>
+								<td>Account currency :</td>
+								<td><input class="input form-control" id="editcurrency" value="'+data.currency+'" /></td>
+							</tr>
+							<tr>
+								<td>Account institution :</td>
+								<td><input class="form-control" id="editinstitution" value="'+data.institution+'" /></td>
+							</tr>
+							<tr>
+								<td>Account address :</td>
+								<td><input class="form-control" id="editaddress" value="'+data.address+'" /></td>
+							</tr>
+							<tr>
+								<td>Account phone :</td>
+								<td><input class="form-control" id="editphone" value="'+data.phone+'" /></td>
+							</tr>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<input id="cancelEdit" type="button" class="button" value="Cancel" /> <input class="btn btn-primary" type="submit" value="Submit">
+					</div>
+				</form>
+			</div>
+			<div class="tab-pane fade" id="summary">
+				<h4>Messages Tab</h4>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+					minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+					voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+					mollit anim id est laborum.</p>
+			</div>
+			<div class="tab-pane fade" id="notes">
+
+				<div id="viewComments"></div>
+
+				<a href=""></a>
+				<div style="margin-left: 15px; margin-top: 10px;" id="commentHidden">
+					<input type="button" class=" btn btn-lg" value="Add new comment">
+				</div>
+				<script src="<c:url value = "/resources/js/my.js"/>"></script>
+				<div align="left" id="commentForma" style="display: none; margin-left: 15px; margin-top: 10px;">
+					<form enctype="multipart/form-data" id="noteForm">
+						<table style="width: 800px">
+							<tr>
+								<td style="padding-bottom: 10px;">User Name:</td>
+								<td><input class="input form-control" id="commentName" placeholder="name:" /></td>
+							</tr>
+							<tr>
+								<td style="padding: 2px 0;">Note text:</td>
+								<td><textarea class="jqte-test" style="margin-top: 1px; margin-bottom: 1px;" id="commentText" placeholder="comment:" rows="5" cols="40"></textarea></td>
+							<tr>
+								<td></td>
+								<td><input name="file2" id="file2" type="file" /><br /></td>
+							</tr>
+							<tr>
+								<td colspan="2" align="center"><input type="submit" class="btn btn-info btn-circle btn-lg" value="AddNote" /></td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Nav tabs -->
+
+<div class="modal fade" id="myAcc">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<h3 id="myModalLabel" style="margin-left: 30px;">New Account</h3>
+			</div>
+			<form id="createForm" name="myForm">
+				<div class="modal-body">
+					<table class="table table-bordered table-hover text-center">
+						<tr>
+							<td>Account name :</td>
+							<td><input class="input form-control" id="name" name="name" /></td>
+						</tr>
+						<tr>
+							<td>Account number:</td>
+							<td><input class="input form-control" id="number" /></td>
+						</tr>
+						<tr>
+							<td>Account currency :</td>
+							<td><input class="input form-control" id="currency"></td>
+						</tr>
+						<tr>
+							<td>Account institution :</td>
+							<td><input class="input form-control" id="institution" /></td>
+						</tr>
+						<tr>
+							<td>Account address :</td>
+							<td><input class="input form-control" id="address" /></td>
+						</tr>
+						<tr>
+							<td>Account phone :</td>
+							<td><input class="input form-control" id="phone" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button class="btn" id="closeCreate" data-dismiss="modal" aria-hidden="true">Close</button>
+					<input class="btn btn-primary" type="submit" value="Submit">
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+
+<!-- <input name="file2" id="file2" type="file" /> -->
+<!-- <br /> -->
+<!-- <input name="textq" id="textq" type="text" /> -->
+<!-- <br /> -->
+
+<!-- <input type="submit" class="btn btn-info btn-circle btn-lg" onclick="uploadFile()" value="addfile" id="fileon" /> -->
+<script type="text/javascript" src="<c:url value="/resources/js/jquery-ui.js" />"></script>
+<script>
+	$("#datepicker").datepicker({
+		inline : true
+	});
+	$("#dialog-link, #icons li").hover(function() {
+		$(this).addClass("ui-state-hover");
+	}, function() {
+		$(this).removeClass("ui-state-hover");
+	});
+	$(function() {
+		$('#the-node').contextMenu({
+			selector : 'tr',
+			callback : function(key, options) {
+				switch (key) {
+				case "delete":
+					if (options.$trigger.attr("id") == null) {
+						break;
+					}
+					$.ajax({
+						type : "GET",
+						url : "rest/account/delete_transaction",
+						data : "id=" + options.$trigger.attr("id"),
+						success : function(data) {
+							viewTransactions();
+						},
+						error : function(jqXHR, textStatus, errorThrown) {
+							alert("Request failed: " + textStatus);
+							console.log(JSON.stringify(jqXHR));
+						},
+					});
+				}
+			},
+			items : {
+				"paste" : {
+					name : "Other",
+					icon : "paste",
+					disabled : true
+				},
+				"delete" : {
+					name : "Delete",
+					icon : "delete"
+				},
+				"sep1" : "---------",
+				"quit" : {
+					name : "Quit",
+					icon : "quit"
+				}
+			}
+		});
+	});
+</script>
+<script type="text/javascript">
+	
+</script>
+
+<script type="text/javascript" src="<c:url value="/resources/js/jquery.dataTables.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/js/dataTables.bootstrap.js" />"></script>

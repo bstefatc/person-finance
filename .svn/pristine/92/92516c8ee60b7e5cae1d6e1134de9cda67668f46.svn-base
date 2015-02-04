@@ -1,0 +1,94 @@
+
+<head>
+<%@ taglib prefix='c' uri='http://java.sun.com/jsp/jstl/core'%>
+<%@ taglib prefix='sec' uri='http://www.springframework.org/security/tags'%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<script type="text/javascript" src="<c:url value="/resources/js/bootstrap.min.js" />"></script>
+<%@ taglib prefix='sec' uri='http://www.springframework.org/security/tags'%>
+<script type="text/javascript" src="<c:url value="/resources/js/jquery.js" />"></script>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
+<script src="<c:url value = "/resources/js/jquery-te-1.4.0.min.js"/>"></script>
+
+
+</head>
+<body>
+	<div class="navbar navbar-fixed-top">
+		<div class="navbar-inner">
+			<ul class="nav">
+				<sec:authorize ifAnyGranted='anonim'>
+					<li><a href="#myModal" data-toggle="modal">Registration</a></li>
+				</sec:authorize>
+			</ul>
+
+			<sec:authorize ifAnyGranted='anonim'>
+				<form method="POST" class="navbar-form pull-right" action="<c:url value='/j_spring_security_check'/>">
+					<input type="text" name="j_username" class="span2" placeholder="login"> <input type="password" name="j_password" class="span2"
+						placeholder="password">
+
+					<button type="submit" class="btn">Ok</button>
+				</form>
+			</sec:authorize>
+			<sec:authorize ifAnyGranted='user'>
+
+				<ul class="nav pull-right">
+					<li><a href="#"><b><sec:authentication property="principal.username" /></b></a></li>
+					<li><a href=<c:url value='/j_spring_security_logout'/>>Logout</a></li>
+				</ul>
+
+			</sec:authorize>
+		</div>
+	</div>
+
+	<div class="modal hide" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+			<h3 id="myModalLabel">Registration</h3>
+		</div>
+		<c:url var="post_url" value="/createuser" />
+		<form:form id="form" method="POST" action="${post_url}" commandName="user">
+			<div class="modal-body">
+
+
+				<table class="table table-bordered table-hover text-center">
+
+
+
+
+					<tr>
+						<td>Username :</td>
+						<td><form:input class="input" path="username" id="username" />
+							<div id="usernameanswer"></div></td>
+
+					</tr>
+					<tr>
+						<td>Password :</td>
+						<td><form:password class="input" path="password" /></td>
+					</tr>
+
+
+					<tr>
+						<td>Email :</td>
+						<td><form:input class="input" path="email" id="email" />
+							<div id="emailvalid"></div></td>
+					</tr>
+
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				<input class="btn btn-primary" type="submit" value="submit">
+			</div>
+		</form:form>
+	</div>
+	<div class="navbar mynavbar">
+		<div class="navbar-inner">
+			<p style="margin-top: 16px">
+
+				<a href="<spring:url value="/" />" class="mybtn btn btn-default " ">Dashboard</a> <a href="<spring:url value="/account/transaction" />"
+					class="btn btn-default mybtn" >Accounts</a> <a class="btn btn-default mybtn">Calendar</a> <a
+					class="btn btn-default mybtn">Reports</a> <a class="btn btn-default mybtn">Notes</a> <a class="btn btn-default mybtn">Settings</a>
+			</p>
+		</div>
+	</div>
+
+</body>

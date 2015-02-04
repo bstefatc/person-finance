@@ -1,0 +1,195 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<script type="text/javascript">
+	$.ajax({
+		type : "GET",
+		dataType : "json",
+		url : "rest/account",
+		success : function(data) {
+			console.log(data);
+			var res = JSON.stringify(data); //json to string
+			var c = "";
+			for (var i = 0; i < data.length; i++) {
+				c += '<div class="panel panel-info">	<div class="panel-heading"  id = "' +data[i].id+'">' + data[i].name + '</div>	</div>';
+			}
+			$('#result').html(c);
+			showDetail();
+
+		},
+		error : function(jqXHR, textStatus, errorThrown) {
+			alert("Request failed: " + textStatus);
+			console.log(JSON.stringify(jqXHR));
+		},
+	});
+
+	function showDetail() {
+		$('#result')
+				.on(
+						'click',
+						function(e) {
+							$('#rightView').html("aaaaaaaaaaa");
+							$
+									.ajax({
+										type : "GET",
+										dataType : "json",
+										url : "rest/account/byId",
+										data : "accountId=" + e.target.id,
+										success : function(data) {
+											console.log(data);
+											var res = JSON.stringify(data); //json to string
+											var c = "";
+
+											c = '<div class="panel panel-default mypanel2" style="float: left"><div class="panel-body"><h3 id="example"><i><b>'
+													+ data.name
+													+ '</b></i> <span></span></h3><ul class="nav nav-tabs">'
+													+ '<li><a>Transaction</a></li>'
+													+ '<li  class="active"><a>Detail</a></li>'
+													+ '<li><a>Summary</a></li>'
+													+ '<li><a>Notes</a></li></ul>'
+													+ '<div class="tab-content"> '
+													+ '<div class="tab-pane fade in active" id="Detail">'
+													+ '<c:url var="post_url" value="/rest/account/update" />'
+													+ '<form id="editForm">'
+													+ '<div class="modal-body">'
+													+ '	<table class="table table-bordered table-hover text-center">'
+													+ '		<tr>'
+													+ '			<td>Account id:</td>'
+													+ '			<td><input class="form-control"  id="editid" readonly="true" value="'+data.id+'"/></td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '			<td>Account name :</td>'
+													+ '			<td><input class="form-control"  id="editname"  value="'+data.name+'"/></td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '<td>Account number:</td>'
+													+ '			<td><input class="form-control" id="editnumber"  value="'+data.number+'"/></td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '			<td>Account currency :</td>'
+													+ '			<td><input class="input form-control"  id="editcurrency"  value="'+data.currency+'"/>'
+													+ '					</td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '			<td>Account institution :</td>'
+													+ '			<td><input class="form-control"  id="editinstitution" value="'+data.institution+'" /></td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '			<td>Account address :</td>'
+													+ '			<td><input class="form-control"  id="editaddress"  value="'+data.address+'" /></td>'
+													+ '		</tr>'
+													+ '		<tr>'
+													+ '			<td>Account phone :</td>'
+													+ '			<td><input class="form-control"  id="editphone"  value="'+data.phone+'" /></td>'
+													+ '		</tr>'
+													+ '	</table>'
+													+ '</div>'
+													+ '<div class="modal-footer">'
+													+ '	<input type="button" class="button" value="Cancel" /> <input'
+													+'		class="btn btn-primary" type="submit" value="Submit">'
+													+ '</div>' + '</form>' + '</div>' + '</div>' + '</div></div>';
+											$('#rightView').html(c);
+											alert($("#editname").val());
+											submitEditForm();
+
+										},
+										error : function(jqXHR, textStatus, errorThrown) {
+											alert("Request failed: " + textStatus);
+											console.log(JSON.stringify(jqXHR));
+										},
+									});
+						});
+	};
+
+	function submitEditForm() {
+
+		$("#editForm").submit(function() {
+
+			var url = "rest/account/update"; // the script where you handle the form input.
+			var name = $("#editname").val();
+			var number = $("#editnumber").val();
+			var currency = $("#editcurrency").val();
+			var institution = $("#editinstitution").val();
+			var address = $("#editaddress").val();
+			var phone = $("#editphone").val();
+			alert(name);
+			data="name="+name;
+			$.ajax({
+				type : "POST",
+				url : url,
+				data : data, 
+				success : function(data) {
+					alert(data); // show response from the php script.
+				},
+				error : function(jqXHR, textStatus, errorThrown) {
+					alert("Request failed: " + textStatus);
+					console.log(JSON.stringify(jqXHR));
+				},
+			});
+
+			return false; // avoid to execute the actual submit of the form.
+		});
+	};
+</script>
+
+
+
+<div class="panel panel-default mypanel1" style="float: left">
+	<div class="panel-heading">Your Accounts</div>
+	<a href="#myAcc" data-toggle="modal">
+		<div class="panel panel-info">
+			<div class="panel-heading">Add new</div>
+		</div>
+	</a>
+	<div class="panel-body" id="result"></div>
+</div>
+
+<div id="rightView">qwewqwe</div>
+
+<div class="modal fade" id="myAcc">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<h3 id="myModalLabel" style="margin-left: 30px;">New Account</h3>
+			</div>
+			<form id="form" name="myForm" method="POST" action="">
+				<div class="modal-body">
+					<table class="table table-bordered table-hover text-center">
+						<tr>
+							<td>Account name :</td>
+							<td><input class="input form-control" id="name" name="name" /></td>
+						</tr>
+						<tr>
+							<td>Account number:</td>
+							<td><input class="input form-control" id="number" /></td>
+						</tr>
+						<tr>
+							<td>Account currency :</td>
+							<td><input class="input form-control" id="currency"></td>
+						</tr>
+						<tr>
+							<td>Account institution :</td>
+							<td><input class="input form-control" id="institution" /></td>
+						</tr>
+						<tr>
+							<td>Account address :</td>
+							<td><input class="input form-control" id="address" /></td>
+						</tr>
+						<tr>
+							<td>Account phone :</td>
+							<td><input class="input form-control" id="phone" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					<input class="btn btn-primary" type="submit" value="Submit">
+				</div>
+			</form>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+

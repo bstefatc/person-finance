@@ -1,0 +1,204 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://www.springframework.org/tags/form" prefix="form"%>
+<%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
+<script type="text/javascript" src="<c:url value="/resources/rest_js/header.js" />"></script>
+
+<div class="navbar navbar-default mynavbar">
+	<div class="navbar-inner" style="margin-top: 10px">
+		<p>
+			<a href="<spring:url value="/" />" class="mybtn btn btn-default">Dashboard</a> <a href="<spring:url value="/account/transaction" />"
+				class="btn btn-default mybtn">SPRING WEB</a> <a class="btn btn-default mybtn">Calendar</a> <a class="btn btn-default mybtn">Reports</a> <a
+				class="btn btn-default mybtn">Notes</a> <a class="btn btn-default mybtn">Settings</a>
+		</p>
+	</div>
+</div>
+
+<div class="panel panel-default mypanel1" style="float: left">
+	<div class="panel-heading">Your Accounts</div>
+	<a href="#myAcc" data-toggle="modal">
+		<div class="panel panel-info">
+			<div class="panel-heading">Add new</div>
+		</div>
+	</a>
+	<div class="panel-body" id="result"></div>
+</div>
+
+<div class="panel panel-default mypanel2" id="rightPanel" style="float: left">
+	<!-- /.panel-heading -->
+	<div class="panel-body">
+		<h3 id="example">
+			<i><b>Switch on javascript in your browser</b></i> <span></span>
+		</h3>
+		<ul class="nav nav-tabs">
+			<li class="idtransactions"><a href="#transactions" data-toggle="tab">Transactions</a></li>
+			<li class="active iddetails"><a href="#details" data-toggle="tab">Details</a></li>
+			<li class="idsummary"><a href="#summary" data-toggle="tab">Summary</a></li>
+			<li class="idnotes"><a href="#notes" data-toggle="tab">Notes</a></li>
+		</ul>
+		<!-- Tab panes -->
+		<div class="tab-content">
+			<div class="tab-pane fade " id="transactions">
+				<div class="panel-body">
+					<div class="table">
+						<table class="table table-striped table-bordered table-hover">
+							<thead>
+								<tr>
+									<th>Date</th>
+									<th>Details</th>
+									<th>Amount</th>
+									<th>Balance</th>
+									<th>Comment</th>
+									<th>Tag</th>
+								</tr>
+							</thead>
+							<tbody>
+								<c:url var="post_urla" value="/createTransaction/${dto.account.id}" />
+								<tr>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="datepicker" /></td>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trDetails" /></td>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trAmount" /></td>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" id="trBalance" /></td>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" autocomplete="off" id="trComment" /></td>
+									<td style="padding-bottom: 0px; height: 30px"><input style="width: 200px" class="input form-control" name="tag" autocomplete="on"
+										id="trTag" /></td>
+									<td><input id="addTransaction" class="btn " type="submit" value="Add"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<script src="<c:url value = "/resources/js/my.js"/>"></script>
+				<div class="panel-body">
+					<div class="table" id="sortingTable"></div>
+					<!-- /.table-responsive -->
+				</div>
+			</div>
+			<div class="tab-pane fade in active" id="details">
+				<c:url var="post_url" value="/rest/account/update" />
+				<div class="modal-body">
+					<table class="table table-bordered table-hover text-center">
+						<tr>
+							<td>Account id:</td>
+							<td><input class="form-control" id="editid" readonly="true" value="'+data.id+'" /></td>
+						</tr>
+						<tr>
+							<td>Account name :</td>
+							<td><input class="form-control" id="editname" value="'+data.name+'" /></td>
+						</tr>
+						<tr>
+							<td>Account number:</td>
+							<td><input class="form-control" id="editnumber" value="'+data.number+'" /></td>
+						</tr>
+						<tr>
+							<td>Account currency :</td>
+							<td><input class="input form-control" id="editcurrency" value="'+data.currency+'" /></td>
+						</tr>
+						<tr>
+							<td>Account institution :</td>
+							<td><input class="form-control" id="editinstitution" value="'+data.institution+'" /></td>
+						</tr>
+						<tr>
+							<td>Account address :</td>
+							<td><input class="form-control" id="editaddress" value="'+data.address+'" /></td>
+						</tr>
+						<tr>
+							<td>Account phone :</td>
+							<td><input class="form-control" id="editphone" value="'+data.phone+'" /></td>
+						</tr>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<input id="cancelEdit" type="button" class="button" value="Cancel" /> <input id="submitEdit" class="btn btn-primary" type="submit"
+						value="Submit">
+				</div>
+			</div>
+			<div class="tab-pane fade" id="summary">
+				<h4>Messages Tab</h4>
+				<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
+					minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in
+					voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+					mollit anim id est laborum.</p>
+			</div>
+			<div class="tab-pane fade" id="notes">
+
+				<div id="viewComments"></div>
+
+				<a href=""></a>
+				<div style="margin-left: 15px; margin-top: 10px;" id="commentHidden">
+					<input type="button" class=" btn btn-lg" value="Add new comment">
+				</div>
+				<script src="<c:url value = "/resources/js/my.js"/>"></script>
+				<div align="left" id="commentForma" style="display: none; margin-left: 15px; margin-top: 10px;">
+					<form enctype="multipart/form-data" id="noteForm">
+						<table style="width: 800px">
+							<tr>
+								<td style="padding-bottom: 10px;">User Name:</td>
+								<td><input class="input form-control" id="commentName" placeholder="name:" /></td>
+							</tr>
+							<tr>
+								<td style="padding: 2px 0;">Note text:</td>
+								<td><textarea class="jqte-test" style="margin-top: 1px; margin-bottom: 1px;" id="commentText" placeholder="comment:" rows="5" cols="40"></textarea></td>
+							<tr>
+								<td></td>
+								<td><input name="file2" id="file2" type="file" /><br /></td>
+							</tr>
+							<tr>
+								<td colspan="2" align="center"><input type="submit" class="btn btn-info btn-circle btn-lg" value="AddNote" /></td>
+							</tr>
+						</table>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Nav tabs -->
+
+<div class="modal fade" id="myAcc">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true"></button>
+				<h3 id="myModalLabel" style="margin-left: 30px;">New Account</h3>
+			</div>
+			<div class="modal-body">
+				<table class="table table-bordered table-hover text-center">
+					<tr>
+						<td>Account name :</td>
+						<td><input class="input form-control" id="name" name="name" /></td>
+					</tr>
+					<tr>
+						<td>Account number:</td>
+						<td><input class="input form-control" id="number" /></td>
+					</tr>
+					<tr>
+						<td>Account currency :</td>
+						<td><input class="input form-control" id="currency"></td>
+					</tr>
+					<tr>
+						<td>Account institution :</td>
+						<td><input class="input form-control" id="institution" /></td>
+					</tr>
+					<tr>
+						<td>Account address :</td>
+						<td><input class="input form-control" id="address" /></td>
+					</tr>
+					<tr>
+						<td>Account phone :</td>
+						<td><input class="input form-control" id="phone" /></td>
+					</tr>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" id="closeCreate" data-dismiss="modal" aria-hidden="true">Close</button>
+				<input id="addAccountSubmit" class="btn btn-primary" type="submit" value="Submit">
+			</div>
+		</div>
+		<!-- /.modal-content -->
+	</div>
+	<!-- /.modal-dialog -->
+</div>
+<script type="text/javascript" src="<c:url value="/resources/js/jquery-ui.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/rest_js/body.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/js/jquery.dataTables.js" />"></script>
+<script type="text/javascript" src="<c:url value="/resources/js/dataTables.bootstrap.js" />"></script>

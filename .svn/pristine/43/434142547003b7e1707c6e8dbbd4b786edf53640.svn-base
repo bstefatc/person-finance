@@ -1,0 +1,116 @@
+package com.sombra.inc.rest;
+
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sombra.inc.entity.Account;
+import com.sombra.inc.entity.Comment;
+import com.sombra.inc.entity.Transaction;
+import com.sombra.inc.service.IAccountService;
+import com.sombra.inc.service.ICommentService;
+import com.sombra.inc.service.ITransactionService;
+
+@RestController
+@RequestMapping("rest")
+public class TryController {
+
+	@Autowired
+	private IAccountService accountService;
+
+	@Autowired
+	private ICommentService commentService;
+
+	@Autowired
+	private ITransactionService transactionService;
+
+	@RequestMapping(value = "account")
+	public List<Account> allAccounts() {
+		return accountService.findAll();
+	}
+
+	@RequestMapping(value = "account/byId")
+	public Account oneAccount(@RequestParam(value = "accountId") String accountId) {
+		return accountService.findAccountById(Integer.parseInt(accountId));
+	}
+
+	@RequestMapping(value = "account/update", method = RequestMethod.GET)
+	public String updateAccount(@RequestParam(value = "id") String id, @RequestParam(value = "name") String name,
+			@RequestParam(value = "number") String number, @RequestParam(value = "currency") String currency,
+			@RequestParam(value = "institution") String institution, @RequestParam(value = "address") String address,
+			@RequestParam(value = "phone") String phone) {
+		Account acc = new Account();
+		acc.setId(Integer.parseInt(id));
+		acc.setName(name);
+		acc.setNumber(number);
+		acc.setCurrency(currency);
+		acc.setInstitution(institution);
+		acc.setAddress(address);
+		acc.setPhone(phone);
+		accountService.save(acc);
+		return name + number + currency + institution + address + phone;
+	}
+
+	@RequestMapping(value = "account/create", method = RequestMethod.GET)
+	public String createAccount(@RequestParam(value = "name") String name, @RequestParam(value = "number") String number,
+			@RequestParam(value = "currency") String currency, @RequestParam(value = "institution") String institution,
+			@RequestParam(value = "address") String address, @RequestParam(value = "phone") String phone) {
+		Account acc = new Account();
+		acc.setName(name);
+		acc.setNumber(number);
+		acc.setCurrency(currency);
+		acc.setInstitution(institution);
+		acc.setAddress(address);
+		acc.setPhone(phone);
+		accountService.save(acc);
+		return name + number + currency + institution + address + phone;
+	}
+
+	@RequestMapping(value = "comment", method = RequestMethod.GET)
+	public List<Comment> getComments(@RequestParam(value = "id") String id) {
+		return commentService.findByAccountId(Integer.parseInt(id));
+	}
+
+	@RequestMapping(value = "account/createcomment", method = RequestMethod.GET)
+	public String createComment(@RequestParam(value = "id") String id, @RequestParam(value = "name") String name,
+			@RequestParam(value = "commentText") String commentText) {
+		Comment com = new Comment();
+		com.setUserName(name);
+		com.setCommentText(commentText);
+		commentService.save(com, Integer.parseInt(id));
+		System.out.println("gooooooooooooooooog" + name + "  and " + commentText);
+		return name + commentText;
+	}
+
+	@RequestMapping(value = "account/transactions", method = RequestMethod.GET)
+	public List<Transaction> getTransactions(@RequestParam(value = "id") String id) {
+		return transactionService.findByAccountId(Integer.parseInt(id));
+	}
+
+	@RequestMapping(value = "account/create_transaction", method = RequestMethod.GET)
+	public String createTransaction(@RequestParam(value = "id") Integer id, @RequestParam(value = "date") Date date,
+			@RequestParam(value = "amount") Integer amount, @RequestParam(value = "balance") Integer balance,
+			@RequestParam(value = "comment") String comment, @RequestParam(value = "detail") String details, @RequestParam(value = "tag") String tag) {
+		Transaction tr = new Transaction();
+		tr.setAccount(accountService.findAccountById(id));
+		tr.setAmount(amount);
+		tr.setBalance(balance);
+		tr.setComment(comment);
+		tr.setDate(date);
+		tr.setDetails(details);
+		tr.setTag(tag);
+		transactionService.save(tr, id);
+		return amount + date.toString();
+	}
+
+	@RequestMapping(value = "account/delete_transaction", method = RequestMethod.POST)
+	public String deleteTransactions(@RequestParam(value = "id") Integer id) {
+		transactionService.delete(id);
+		return "success";
+	}
+}

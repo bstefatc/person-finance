@@ -1,0 +1,37 @@
+package com.sombra.inc.rest;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.sombra.inc.entity.Account;
+import com.sombra.inc.service.IAccountService;
+
+@RestController
+@RequestMapping("rest")
+public class TryController {
+
+	@Autowired
+	private IAccountService accountService;
+
+	@RequestMapping(value = "account")
+	public List<Account> allAccounts() {
+		return accountService.findAll();
+	}
+
+	@RequestMapping(value = "account/byId")
+	public Account oneAccount(@RequestParam(value = "accountId") String accountId) {
+		return accountService.findAccountById(Integer.parseInt(accountId));
+	}
+
+	@RequestMapping(value = "account/update", method = RequestMethod.POST)
+	public String updateAccount(@RequestParam(value = "name") String name) {
+		System.out.println("go");
+		System.out.println(name);
+		return "ok";
+	}
+}
